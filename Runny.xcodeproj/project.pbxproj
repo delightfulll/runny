@@ -30,7 +30,7 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		C9BAED8A2F1D6E9A0098F917 /* Runny */ = {
+		C97709732F216180006A6958 /* Runny */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = Runny;
 			sourceTree = "<group>";
@@ -75,7 +75,7 @@
 		C9BAED7F2F1D6E9A0098F917 = {
 			isa = PBXGroup;
 			children = (
-				C9BAED8A2F1D6E9A0098F917 /* Runny */,
+				C97709732F216180006A6958 /* Runny */,
 				C9BAED982F1D6E9B0098F917 /* RunnyTests */,
 				C9BAEDA22F1D6E9B0098F917 /* RunnyUITests */,
 				C9BAED892F1D6E9A0098F917 /* Products */,
@@ -108,7 +108,7 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				C9BAED8A2F1D6E9A0098F917 /* Runny */,
+				C97709732F216180006A6958 /* Runny */,
 			);
 			name = Runny;
 			packageProductDependencies = (
