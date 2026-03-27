@@ -126,7 +126,8 @@ class ActivityViewModel: ObservableObject {
     func updateDistance(_ newDistance: Double) {
         distance = newDistance
     }
-    
+
+
     // Save the completed workout to the shared user data
     func saveWorkout(to userData: UserDataViewModel) {
         stopWorkout()

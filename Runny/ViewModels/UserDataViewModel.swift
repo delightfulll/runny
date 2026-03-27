@@ -132,6 +132,7 @@ class UserDataViewModel: ObservableObject {
         return min(100 - yesterdayStrain, 100.0)
     }
 
+
     func calculateStreak() {
         if dailyStreak >= 7 {
             dailyStreak = 1
