@@ -29,20 +29,23 @@
 		C9BAED9F2F1D6E9B0098F917 /* RunnyUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RunnyUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		C9510D912F770E43008BFF38 /* Exceptions for "Runny" folder in "Runny" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = C9BAED872F1D6E9A0098F917 /* Runny */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		C97709732F216180006A6958 /* Runny */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				C9510D912F770E43008BFF38 /* Exceptions for "Runny" folder in "Runny" target */,
+			);
 			path = Runny;
-			sourceTree = "<group>";
-		};
-		C9BAED982F1D6E9B0098F917 /* RunnyTests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = RunnyTests;
-			sourceTree = "<group>";
-		};
-		C9BAEDA22F1D6E9B0098F917 /* RunnyUITests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = RunnyUITests;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -76,8 +79,6 @@
 			isa = PBXGroup;
 			children = (
 				C97709732F216180006A6958 /* Runny */,
-				C9BAED982F1D6E9B0098F917 /* RunnyTests */,
-				C9BAEDA22F1D6E9B0098F917 /* RunnyUITests */,
 				C9BAED892F1D6E9A0098F917 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -130,9 +131,6 @@
 			dependencies = (
 				C9BAED972F1D6E9B0098F917 /* PBXTargetDependency */,
 			);
-			fileSystemSynchronizedGroups = (
-				C9BAED982F1D6E9B0098F917 /* RunnyTests */,
-			);
 			name = RunnyTests;
 			packageProductDependencies = (
 			);
@@ -153,9 +151,6 @@
 			dependencies = (
 				C9BAEDA12F1D6E9B0098F917 /* PBXTargetDependency */,
 			);
-			fileSystemSynchronizedGroups = (
-				C9BAEDA22F1D6E9B0098F917 /* RunnyUITests */,
-			);
 			name = RunnyUITests;
 			packageProductDependencies = (
 			);
@@ -171,7 +166,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 2620;
-				LastUpgradeCheck = 2620;
+				LastUpgradeCheck = 2630;
 				TargetAttributes = {
 					C9BAED872F1D6E9A0098F917 = {
 						CreatedOnToolsVersion = 26.2;
@@ -328,6 +323,7 @@
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
@@ -385,6 +381,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				VALIDATE_PRODUCT = YES;
 			};
@@ -400,11 +397,14 @@
 				DEVELOPMENT_TEAM = VQ796LPV7W;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Runny/Info.plist;
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "we need ur location";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -432,11 +432,14 @@
 				DEVELOPMENT_TEAM = VQ796LPV7W;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Runny/Info.plist;
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "we need ur location";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
