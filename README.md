@@ -93,6 +93,6 @@ npm run dev
 
 ### iOS App
 
-Open `Runny.xcodeproj` in Xcode, set your target device, and run.
+Open `Runny.xcodeproj` in Xcode and run on targeted device.
 
-> Update `APIService.baseURL` in `Runny/Services/APIService.swift` to point to your backend.
+> Update `APIService.baseURL` in `Runny/Services/APIService.swift` to point to your backend to make sure api's work as intended
