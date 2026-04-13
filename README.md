@@ -45,6 +45,7 @@ A fitness tracking iOS app that lets you log workouts, view activity history, tr
 | **Docker**   | Backend containerization       |
 | **AWS EC2**  | Backend hosting                |
 | **AWS ECS**  | Container orchestration        |
+| **AWS ECR**  | Docker container registry      |
 
 ---
 
