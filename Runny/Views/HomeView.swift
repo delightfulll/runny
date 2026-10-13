@@ -12,8 +12,14 @@ import SwiftUI
 struct HomeView: View {
     @EnvironmentObject var userData: UserDataViewModel
     @EnvironmentObject var auth: AuthViewModel
+    @State private var todayPopped = false
+    @State private var todayScale: CGFloat = 1.0
     
     var date: Date = Date()
+
+    private var todayDone: Bool {
+        userData.weekActivityDays.first(where: \.isToday)?.done ?? false
+    }
     
     var body: some View {
         NavigationStack {
@@ -61,9 +67,11 @@ struct HomeView: View {
                                 Circle()
                                     .fill(Color.red.opacity(0.85))
                                     .frame(width: 56, height: 56)
-                                Text("\(Int(userData.currentStrain))")
-                                    .font(.headline)
+                                Text(String(format: "%.1f", userData.currentStrain))
+                                    .font(.system(size: 16, weight: .bold, design: .rounded))
                                     .foregroundStyle(.white)
+                                    .contentTransition(.numericText())
+                                    .animation(.spring(response: 0.35, dampingFraction: 0.8), value: userData.currentStrain)
                             }
                         }
                     }
@@ -72,7 +80,7 @@ struct HomeView: View {
                 .frame(maxWidth: .infinity, minHeight: 110)
                 .padding(.horizontal)
                 
-                // Daily Streak Card
+                // Daily Streak Card — current week, one circle per day
                 ZStack {
                     RoundedRectangle(cornerRadius: 16, style: .continuous)
                         .fill(Color(red: 255/255, green: 218/255, blue: 149/255))
@@ -80,11 +88,24 @@ struct HomeView: View {
                     VStack(spacing: 12) {
                         Text("Daily Streak")
                             .font(.headline)
-                        HStack(spacing: 12) {
-                            ForEach(0..<7, id: \.self) { index in
-                                Circle()
-                                    .fill(index < userData.dailyStreak ? Color.green : Color.gray)
-                                    .frame(width: 36, height: 36)
+                        HStack(spacing: 10) {
+                            ForEach(userData.weekActivityDays) { day in
+                                VStack(spacing: 6) {
+                                    ZStack {
+                                        Circle()
+                                            .fill(day.done ? Color.green : Color.gray.opacity(0.35))
+                                            .frame(width: 36, height: 36)
+                                        if day.isToday {
+                                            Circle()
+                                                .strokeBorder(Color.orange, lineWidth: 2.5)
+                                                .frame(width: 36, height: 36)
+                                        }
+                                    }
+                                    .scaleEffect(day.isToday ? todayScale : 1.0)
+                                    Text(day.label)
+                                        .font(.caption2.weight(day.isToday ? .bold : .regular))
+                                        .foregroundStyle(day.isToday ? .primary : .secondary)
+                                }
                             }
                         }
                     }
@@ -92,6 +113,15 @@ struct HomeView: View {
                 }
                 .frame(maxWidth: .infinity)
                 .padding(.horizontal)
+                .sensoryFeedback(.success, trigger: todayPopped)
+                .onChange(of: todayDone) { _, done in
+                    guard done else { return }
+                    todayPopped.toggle()
+                    todayScale = 0.6
+                    withAnimation(.spring(response: 0.4, dampingFraction: 0.55)) {
+                        todayScale = 1.0
+                    }
+                }
                 
                 // Most Recent Activity Section
                 VStack(alignment: .leading, spacing: 8) {

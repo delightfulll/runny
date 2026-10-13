@@ -15,6 +15,25 @@ struct FinishedActivityView: View {
     @Binding var showScreen: Bool
     @EnvironmentObject var userData: UserDataViewModel
 
+    private var previewActivity: Activity {
+        var activity = activityStats.currentActivity
+        let distanceInMiles = activityStats.distance * 0.621371
+        let hasDistance = activity.type != .weightlifting
+        activity.distance = hasDistance ? distanceInMiles : nil
+        activity.time = TimeInterval(activityStats.elapsedTime)
+        activity.calories = activityStats.calories
+        activity.difficulty = difficulty
+        if hasDistance && distanceInMiles > 0 {
+            activity.averagePace = (TimeInterval(activityStats.elapsedTime) / 60.0) / distanceInMiles
+        } else {
+            activity.averagePace = nil
+        }
+        return activity
+    }
+
+    private var liveStrain: Double {
+        UserDataViewModel.strain(for: previewActivity, difficulty: difficulty)
+    }
 
     var body: some View {
         NavigationStack {
@@ -32,7 +51,6 @@ struct FinishedActivityView: View {
                     .navigationBarBackButtonHidden(true)
                     .padding(.horizontal)
 
-                    // Metric Card Builder function-like pattern in-place
                     Group {
                         // Total Distance
                         VStack(alignment: .leading, spacing: 12) {
@@ -103,6 +121,41 @@ struct FinishedActivityView: View {
                                 }
                                 .frame(maxWidth: .infinity, minHeight: 90)
                             }
+                        }
+
+                        // Strain card — updates live with difficulty
+                        VStack(alignment: .leading, spacing: 12) {
+                            HStack(spacing: 10) {
+                                Text("Strain")
+                                    .font(.headline)
+                                Image(systemName: "bolt.heart.fill")
+                                    .font(.headline.bold())
+                                Spacer()
+                                Text("0–21")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                            ZStack {
+                                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                                    .fill(Color(red: 255/255, green: 218/255, blue: 149/255))
+                                    .shadow(color: .black.opacity(0.05), radius: 8, x: 0, y: 4)
+                                HStack(spacing: 16) {
+                                    StrainRingView(strain: liveStrain)
+                                        .frame(width: 72, height: 72)
+                                    VStack(alignment: .leading, spacing: 4) {
+                                        Text(String(format: "%.1f", liveStrain))
+                                            .font(.system(size: 34, weight: .bold, design: .rounded))
+                                            .contentTransition(.numericText())
+                                            .animation(.spring(response: 0.35, dampingFraction: 0.8), value: liveStrain)
+                                        Text(strainLabel(for: liveStrain))
+                                            .font(.subheadline)
+                                            .foregroundStyle(.secondary)
+                                    }
+                                    Spacer()
+                                }
+                                .padding(16)
+                            }
+                            .frame(maxWidth: .infinity, minHeight: 100)
                         }
 
                         // Route Map Card (not shown for weightlifting)
@@ -199,6 +252,48 @@ struct FinishedActivityView: View {
                 }
             }
             .ignoresSafeArea(edges: .bottom)
+        }
+    }
+
+    private func strainLabel(for value: Double) -> String {
+        switch value {
+        case ..<5:  return "Light"
+        case ..<10: return "Moderate"
+        case ..<14: return "Solid"
+        case ..<18: return "Hard"
+        default:    return "All Out"
+        }
+    }
+}
+
+// MARK: - Strain ring (0–21)
+
+struct StrainRingView: View {
+    let strain: Double
+
+    private var progress: Double {
+        min(max(strain / 21.0, 0), 1)
+    }
+
+    var body: some View {
+        ZStack {
+            Circle()
+                .stroke(Color.red.opacity(0.15), lineWidth: 8)
+            Circle()
+                .trim(from: 0, to: progress)
+                .stroke(
+                    AngularGradient(
+                        colors: [.orange, .red, .purple],
+                        center: .center
+                    ),
+                    style: StrokeStyle(lineWidth: 8, lineCap: .round)
+                )
+                .rotationEffect(.degrees(-90))
+                .animation(.spring(response: 0.4, dampingFraction: 0.75), value: progress)
+            Text(String(format: "%.1f", strain))
+                .font(.system(size: 16, weight: .bold, design: .rounded))
+                .contentTransition(.numericText())
+                .animation(.spring(response: 0.35, dampingFraction: 0.8), value: strain)
         }
     }
 }

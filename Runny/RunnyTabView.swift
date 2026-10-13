@@ -42,7 +42,7 @@ struct RunnyTabView: View {
                 
                 
                 Tab(value:3){
-                    ChartView()
+                    OverviewView()
                 } label: {
                     Image(systemName: "chart.xyaxis.line")
                     Text("Overview")

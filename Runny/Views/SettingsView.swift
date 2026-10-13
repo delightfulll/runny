@@ -15,7 +15,6 @@ struct SettingsView: View {
     @State private var dailyStepGoal: Double = 10000
     
     @State private var notifyWorkout: Bool = true
-    @State private var notifyHydration: Bool = false
     @State private var syncHealthKit: Bool = true
     @State private var isDarkMode: Bool = false
     
@@ -108,11 +107,6 @@ struct SettingsView: View {
                     Toggle(isOn: $notifyWorkout) {
                         Label("Workout Reminders", systemImage: "bell.badge.fill")
                             .foregroundColor(.purple)
-                    }
-                    
-                    Toggle(isOn: $notifyHydration) {
-                        Label("Hydration Alerts", systemImage: "drop.fill")
-                            .foregroundColor(.cyan)
                     }
                 }
 

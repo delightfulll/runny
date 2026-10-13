@@ -8,6 +8,14 @@
 import Foundation
 import Combine
 
+struct WeekDayStatus: Identifiable {
+    let id: Date
+    let date: Date
+    let label: String
+    let done: Bool
+    let isToday: Bool
+}
+
 class UserDataViewModel: ObservableObject {
 
     @Published var user: User = User(id: "", name: "You", email: "", yesterdayStrain: 0, dailyStreak: 0, recovery: 100)
@@ -21,6 +29,77 @@ class UserDataViewModel: ObservableObject {
     @Published var monthlyDistance: Double = 0.0
     @Published var isLoading: Bool = false
 
+    // MARK: - Week streak (Sun–Sat, one green circle per day with any activity)
+
+    var weekActivityDays: [WeekDayStatus] {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        guard let weekInterval = calendar.dateInterval(of: .weekOfYear, for: today) else { return [] }
+        let labels = ["S", "M", "T", "W", "T", "F", "S"]
+
+        return (0..<7).compactMap { offset in
+            guard let date = calendar.date(byAdding: .day, value: offset, to: weekInterval.start) else { return nil }
+            let dayStart = calendar.startOfDay(for: date)
+            let done = recentActivities.contains { calendar.isDate($0.date, inSameDayAs: dayStart) }
+            return WeekDayStatus(
+                id: dayStart,
+                date: dayStart,
+                label: labels[offset],
+                done: done,
+                isToday: calendar.isDate(dayStart, inSameDayAs: today)
+            )
+        }
+    }
+
+    // MARK: - Whoop-style strain (0–21)
+
+    /// Training load for a single activity before the strain curve is applied.
+    static func load(for activity: Activity) -> Double {
+        let minutes = activity.time / 60.0
+
+        let typeFactor: Double
+        switch activity.type {
+        case .running:       typeFactor = 1.0
+        case .biking:        typeFactor = 0.8
+        case .weightlifting: typeFactor = 0.9
+        case .walking:       typeFactor = 0.4
+        }
+
+        let difficultyFactor: Double
+        switch activity.difficulty {
+        case .light:  difficultyFactor = 0.6
+        case .mid:    difficultyFactor = 1.0
+        case .allOut: difficultyFactor = 1.5
+        }
+
+        var load = minutes * typeFactor * difficultyFactor
+
+        // Pace bonus for fast runs / rides (min/mile). Lower pace = harder.
+        if let pace = activity.averagePace, pace > 0,
+           activity.type == .running || activity.type == .biking {
+            if pace < 7.0 {
+                load *= 1.2
+            } else if pace < 9.0 {
+                load *= 1.1
+            }
+        }
+
+        return load
+    }
+
+    /// Maps cumulative load onto a Whoop-like 0–21 curve.
+    static func strain(fromLoad load: Double) -> Double {
+        guard load > 0 else { return 0 }
+        return 21.0 * (1.0 - exp(-load / 43.0))
+    }
+
+    /// Strain for a single activity at a given difficulty (used by the finish screen).
+    static func strain(for activity: Activity, difficulty: Difficulty? = nil) -> Double {
+        var copy = activity
+        if let difficulty { copy.difficulty = difficulty }
+        return strain(fromLoad: load(for: copy))
+    }
+
     // Fetch user profile and activities from the server
     func loadFromServer() {
         Task {
@@ -33,7 +112,6 @@ class UserDataViewModel: ObservableObject {
 
                 await MainActor.run {
                     user = fetchedUser
-                    dailyStreak = fetchedUser.dailyStreak
                     recentActivities = fetchedActivities
                     weeklyActivities = Array(fetchedActivities.prefix(7))
                     weeklyDistance = fetchedActivities
@@ -41,6 +119,8 @@ class UserDataViewModel: ObservableObject {
                         .compactMap { $0.distance }
                         .reduce(0, +)
                     weeklyWorkouts = fetchedActivities.filter { isThisWeek($0.date) }.count
+                    dailyStreak = weekActivityDays.filter(\.done).count
+                    user.dailyStreak = dailyStreak
                     calculateStrain()
                     isLoading = false
                 }
@@ -63,7 +143,9 @@ class UserDataViewModel: ObservableObject {
         }
         weeklyDistance += activity.distance ?? 0
         weeklyWorkouts += 1
-        calculateStreak()
+        dailyStreak = weekActivityDays.filter(\.done).count
+        user.dailyStreak = dailyStreak
+        calculateStrain()
 
         Task {
             do {
@@ -85,61 +167,27 @@ class UserDataViewModel: ObservableObject {
     func deleteActivity(id: String) {
         recentActivities.removeAll { $0.id == id }
         weeklyActivities.removeAll { $0.id == id }
+        dailyStreak = weekActivityDays.filter(\.done).count
+        user.dailyStreak = dailyStreak
+        calculateStrain()
         Task {
             try? await APIService.deleteActivity(id: id)
         }
     }
 
     func calculateStrain() {
-        var strainScore: Double = 0.0
         let calendar = Calendar.current
         let today = Date()
-
-        let todaysActivities = recentActivities.filter { activity in
-            calendar.isDate(activity.date, inSameDayAs: today)
+        let todaysActivities = recentActivities.filter {
+            calendar.isDate($0.date, inSameDayAs: today)
         }
-
-        for activity in todaysActivities {
-            let durationMinutes = activity.time / 60.0
-
-            let difficultyMultiplier: Double
-            switch activity.difficulty {
-            case .light:  difficultyMultiplier = 0.7
-            case .mid:    difficultyMultiplier = 1.0
-            case .allOut: difficultyMultiplier = 1.5
-            }
-
-            var activityStrain: Double = 0.0
-            switch activity.type {
-            case .running:       activityStrain += durationMinutes * 1.5
-            case .biking:        activityStrain += durationMinutes * 1.0
-            case .weightlifting: activityStrain += durationMinutes * 1.8
-            case .walking:       activityStrain += durationMinutes * 0.6
-            }
-
-            if activity.type == .running || activity.type == .biking || activity.type == .walking {
-                activityStrain += (activity.distance ?? 0) * 2.0
-            }
-
-            strainScore += activityStrain * difficultyMultiplier
-        }
-
-        currentStrain = min(strainScore, 100.0)
+        let totalLoad = todaysActivities.reduce(0.0) { $0 + Self.load(for: $1) }
+        currentStrain = Self.strain(fromLoad: totalLoad)
     }
 
     func calculateRecovery() -> Double {
         let yesterdayStrain = getYesterdayStrain()
-        return min(100 - yesterdayStrain, 100.0)
-    }
-
-
-    func calculateStreak() {
-        if dailyStreak >= 7 {
-            dailyStreak = 1
-        } else {
-            dailyStreak += 1
-        }
-        user.dailyStreak = dailyStreak
+        return max(0, min(100 - yesterdayStrain * 4.0, 100.0))
     }
 
     private func getYesterdayStrain() -> Double {
@@ -149,12 +197,8 @@ class UserDataViewModel: ObservableObject {
         let yesterdayActivities = recentActivities.filter {
             calendar.isDate($0.date, inSameDayAs: yesterday)
         }
-
-        var strain: Double = 0.0
-        for activity in yesterdayActivities {
-            strain += (activity.time / 60.0) * 1.5
-        }
-        return min(strain, 100.0)
+        let totalLoad = yesterdayActivities.reduce(0.0) { $0 + Self.load(for: $1) }
+        return Self.strain(fromLoad: totalLoad)
     }
 
     private func isThisWeek(_ date: Date) -> Bool {
