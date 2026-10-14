@@ -2,7 +2,7 @@
 
 ## Demo
 
-[![Runny Demo](https://img.youtube.com/vi/2BdfBvhCMq4/maxresdefault.jpg)](https://youtu.be/2BdfBvhCMq4)
+[![Runny Demo](docs/demo-thumbnail.jpg)](https://youtu.be/2BdfBvhCMq4)
 
 > Click the thumbnail to watch the demo on YouTube.
 
