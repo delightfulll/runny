@@ -4,7 +4,7 @@
 
 [![Runny Demo](docs/demo-thumbnail.jpg)](https://youtu.be/2BdfBvhCMq4)
 
-> Click the thumbnail to watch the demo on YouTube.
+> Click the thumbnail to watch the demo.
 
 ---
 
