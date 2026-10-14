@@ -1,5 +1,13 @@
 # Runny
 
+## Demo
+
+[![Runny Demo](https://img.youtube.com/vi/2BdfBvhCMq4/maxresdefault.jpg)](https://youtu.be/2BdfBvhCMq4)
+
+> Click the thumbnail to watch the demo on YouTube.
+
+---
+
 A fitness tracking iOS app that lets you log workouts, view activity history, track your daily streak, and monitor strain & recovery metrics.
 
 ---
@@ -21,7 +29,7 @@ A fitness tracking iOS app that lets you log workouts, view activity history, tr
 
 **Language:** Swift  
 **Platform:** iOS  
-**Minimum Deployment Target:** iOS 17+
+**Minimum Deployment Target:** iOS 26.0 (see `Runny.xcodeproj`)
 
 ### Backend
 
@@ -33,6 +41,7 @@ A fitness tracking iOS app that lets you log workouts, view activity history, tr
 | **jsonwebtoken**  | JWT-based authentication             |
 | **helmet**        | HTTP security headers                |
 | **cors**          | Cross-origin request handling        |
+| **uuid**          | Unique ID generation                 |
 | **dotenv**        | Environment variable management      |
 | **TypeScript**    | Type-safe backend code               |
 
@@ -56,9 +65,8 @@ A fitness tracking iOS app that lets you log workouts, view activity history, tr
 - **Live GPS Tracking** — Real-time route tracking on a live map using `CoreLocation` and `MapKit`
 - **Activity History** — Browse past workouts with detailed stats per activity
 - **Daily Streak** — Visual 7-day streak tracker to maintain consistency
-- **Strain & Recovery** — Dashboard showing calculated strain score and recovery metric
+- **Strain & Recovery** — Dashboard showing a Whoop-style strain score (0–21) and recovery metric, calculated on-device from your logged activities
 - **Weekly Charts** — Bar chart of workouts per day over the past 7 days
-- **Whoop Integration** — Optional Whoop API connection for strain data
 
 ---
 
@@ -77,7 +85,26 @@ Runny/
         ├── middleware/     # JWT auth middleware
         ├── types/          # TypeScript types
         └── db/             # PostgreSQL connection
+    ├── schema.sql          # Database schema
+    └── Dockerfile          # Backend container image
 ```
+
+---
+
+## API Endpoints
+
+All routes are prefixed with `/api`. Everything except `/auth/*` requires a JWT in the `Authorization: Bearer <token>` header.
+
+| Method | Route               | Description                  |
+| ------ | ------------------- | ---------------------------- |
+| POST   | `/auth/register`    | Create an account            |
+| POST   | `/auth/login`       | Log in and receive a JWT     |
+| GET    | `/users/me`         | Get the current user         |
+| PATCH  | `/users/me`         | Update the current user      |
+| GET    | `/activities`       | List your activities         |
+| GET    | `/activities/:id`   | Get a single activity        |
+| POST   | `/activities`       | Log a new activity           |
+| DELETE | `/activities/:id`   | Delete an activity           |
 
 ---
 
@@ -88,7 +115,20 @@ Runny/
 ```bash
 cd backend
 npm install
-cp .env.example .env   # fill in DB_URL, JWT_SECRET, PORT
+psql "$DATABASE_URL" -f schema.sql   # create tables
+```
+
+Create a `backend/.env` file (it's gitignored):
+
+```
+DATABASE_URL=postgres://user:password@localhost:5432/runny
+JWT_SECRET=your-secret
+PORT=8080
+```
+
+Then start the server:
+
+```bash
 npm run dev
 ```
 
